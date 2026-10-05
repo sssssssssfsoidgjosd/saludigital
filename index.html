@@ -1,0 +1,1612 @@
+!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BTS 3ro 026 — Salud Digital & Psicología</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+  :root {
+    --ink: #0a0a0a;
+    --ink2: #1a1a1a;
+    --ink3: #2d2d2d;
+    --muted: #6b6b6b;
+    --muted2: #9a9a9a;
+    --line: #e0e0e0;
+    --line2: #f0f0f0;
+    --surface: #fafafa;
+    --white: #ffffff;
+    --accent: #0a0a0a;
+    --accent-light: #f5f5f5;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--white);
+    color: var(--ink);
+    overflow-x: hidden;
+  }
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.25rem 3rem;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--line);
+    transition: all 0.3s ease;
+  }
+  nav.scrolled { padding: 0.9rem 3rem; }
+
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 1.4rem;
+    letter-spacing: -0.04em;
+    color: var(--ink);
+    text-decoration: none;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .logo-dot {
+    width: 8px; height: 8px;
+    background: var(--ink); border-radius: 50%;
+    display: inline-block;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.4); opacity: 0.6; }
+  }
+
+  .nav-tabs {
+    display: flex; gap: 0.25rem;
+    background: var(--line2);
+    border-radius: 100px;
+    padding: 4px;
+  }
+  .nav-tab {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem; font-weight: 500;
+    padding: 0.45rem 0.9rem;
+    border-radius: 100px;
+    border: none; cursor: pointer;
+    background: transparent; color: var(--muted);
+    transition: all 0.25s ease;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+  }
+  .nav-tab.active {
+    background: var(--ink); color: var(--white);
+  }
+  .nav-tab:hover:not(.active) { color: var(--ink); background: var(--line); }
+
+  .nav-cta {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem; font-weight: 500;
+    padding: 0.5rem 1.2rem;
+    background: var(--ink); color: var(--white);
+    border: none; border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    letter-spacing: 0.01em;
+    flex-shrink: 0;
+  }
+  .nav-cta:hover { background: var(--ink3); transform: translateY(-1px); }
+
+  /* SECTIONS */
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex; align-items: center;
+    padding: 8rem 3rem 4rem;
+    position: relative; overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 60% 80% at 70% 50%, #f0f0f0 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(var(--line2) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line2) 1px, transparent 1px);
+    background-size: 60px 60px;
+    opacity: 0.6;
+  }
+
+  .hero-content { position: relative; z-index: 1; max-width: 720px; }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    font-size: 0.78rem; font-weight: 500; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--muted);
+    border: 1px solid var(--line);
+    padding: 0.35rem 0.9rem; border-radius: 100px;
+    margin-bottom: 2rem;
+    animation: fadeUp 0.8s ease both;
+  }
+  .hero-eyebrow span {
+    width: 6px; height: 6px; background: var(--ink);
+    border-radius: 50%; animation: pulse 2s infinite;
+  }
+
+  .hero-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(3rem, 7vw, 5.5rem);
+    font-weight: 800; line-height: 0.95;
+    letter-spacing: -0.04em; color: var(--ink);
+    margin-bottom: 1.5rem;
+    animation: fadeUp 0.8s 0.1s ease both;
+  }
+  .hero-title em { font-style: italic; font-weight: 400; color: var(--muted); }
+
+  .hero-desc {
+    font-size: 1.05rem; line-height: 1.7;
+    color: var(--muted); max-width: 480px;
+    margin-bottom: 1rem;
+    animation: fadeUp 0.8s 0.2s ease both;
+  }
+
+  .hero-audience {
+    font-size: 0.85rem; line-height: 1.6;
+    color: var(--muted2); max-width: 480px;
+    margin-bottom: 2.5rem;
+    animation: fadeUp 0.8s 0.2s ease both;
+  }
+  .hero-audience strong { color: var(--muted); }
+
+  .hero-actions {
+    display: flex; gap: 1rem; align-items: center;
+    animation: fadeUp 0.8s 0.3s ease both;
+  }
+  .btn-primary {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem; font-weight: 500;
+    padding: 0.85rem 2rem;
+    background: var(--ink); color: var(--white);
+    border: none; border-radius: 100px;
+    cursor: pointer; transition: all 0.25s ease;
+    letter-spacing: 0.01em;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
+  .btn-secondary {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem; font-weight: 400;
+    padding: 0.85rem 2rem;
+    background: transparent; color: var(--muted);
+    border: 1px solid var(--line); border-radius: 100px;
+    cursor: pointer; transition: all 0.25s ease;
+  }
+  .btn-secondary:hover { color: var(--ink); border-color: var(--ink); }
+
+  .hero-stats {
+    display: flex; gap: 3rem; margin-top: 4rem;
+    padding-top: 2rem; border-top: 1px solid var(--line);
+    animation: fadeUp 0.8s 0.4s ease both;
+  }
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 2rem; font-weight: 700;
+    letter-spacing: -0.04em; color: var(--ink);
+  }
+  .stat-label { font-size: 0.8rem; color: var(--muted); margin-top: 0.2rem; }
+
+  /* FLOATING CARD */
+  .hero-float {
+    position: absolute; right: 3rem; top: 50%;
+    transform: translateY(-50%);
+    animation: float 6s ease-in-out infinite, fadeUp 1s 0.5s ease both;
+    z-index: 1;
+  }
+  .float-card {
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 20px; padding: 1.5rem;
+    width: 240px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+  }
+  .float-card + .float-card { margin-top: 1rem; }
+  .float-metric { font-size: 0.72rem; color: var(--muted); margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.08em; }
+  .float-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.8rem; font-weight: 700; letter-spacing: -0.04em;
+  }
+  .float-bar {
+    height: 4px; background: var(--line2); border-radius: 2px;
+    margin-top: 0.8rem; overflow: hidden;
+  }
+  .float-bar-fill {
+    height: 100%; background: var(--ink); border-radius: 2px;
+    animation: barGrow 1.5s 1s ease both;
+  }
+  @keyframes barGrow { from { width: 0; } }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(-50%) translateY(0); }
+    50% { transform: translateY(-50%) translateY(-16px); }
+  }
+
+  /* CONTENT SECTIONS */
+  .content-section {
+    padding: 6rem 3rem;
+    max-width: 1100px; margin: 0 auto;
+  }
+
+  .section-label {
+    font-size: 0.75rem; font-weight: 500; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--muted);
+    margin-bottom: 0.8rem;
+  }
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 700; letter-spacing: -0.03em;
+    line-height: 1.05; margin-bottom: 1.2rem;
+  }
+  .section-desc { font-size: 1rem; line-height: 1.7; color: var(--muted); max-width: 560px; }
+
+  /* CARDS GRID */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem; margin-top: 3rem;
+  }
+  .card {
+    border: 1px solid var(--line);
+    border-radius: 20px; padding: 2rem;
+    background: var(--white);
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    opacity: 0; transform: translateY(24px);
+  }
+  .card.visible { opacity: 1; transform: translateY(0); }
+  .card:hover {
+    border-color: var(--ink); transform: translateY(-4px);
+    box-shadow: 0 16px 48px rgba(0,0,0,0.08);
+  }
+  .card-icon {
+    width: 44px; height: 44px; border-radius: 12px;
+    background: var(--ink); color: var(--white);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; margin-bottom: 1.2rem;
+    font-weight: 600;
+  }
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.1rem; font-weight: 600;
+    letter-spacing: -0.02em; margin-bottom: 0.6rem;
+  }
+  .card-text { font-size: 0.9rem; line-height: 1.65; color: var(--muted); }
+  .card-tag {
+    display: inline-block; margin-top: 1rem;
+    font-size: 0.72rem; font-weight: 500;
+    padding: 0.3rem 0.7rem; border-radius: 100px;
+    background: var(--line2); color: var(--muted);
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+
+  /* TIPS LIST */
+  .tips-list { margin-top: 2.5rem; }
+  .tip-item {
+    display: flex; gap: 1.5rem; align-items: flex-start;
+    padding: 1.5rem 0; border-bottom: 1px solid var(--line);
+    opacity: 0; transform: translateX(-20px);
+    transition: all 0.5s ease;
+  }
+  .tip-item.visible { opacity: 1; transform: translateX(0); }
+  .tip-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 2rem; font-weight: 700;
+    color: var(--line); letter-spacing: -0.04em;
+    min-width: 3rem; line-height: 1;
+  }
+  .tip-content h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem; font-weight: 600; margin-bottom: 0.4rem;
+  }
+  .tip-content p { font-size: 0.9rem; color: var(--muted); line-height: 1.6; }
+
+  /* ACCORDION */
+  .accordion { margin-top: 2.5rem; }
+  .acc-item {
+    border-bottom: 1px solid var(--line);
+    overflow: hidden;
+  }
+  .acc-header {
+    width: 100%; display: flex; justify-content: space-between;
+    align-items: center; padding: 1.4rem 0;
+    background: none; border: none; cursor: pointer;
+    text-align: left;
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem; font-weight: 600; color: var(--ink);
+    transition: color 0.2s;
+  }
+  .acc-header:hover { color: var(--muted); }
+  .acc-arrow {
+    width: 24px; height: 24px;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem; color: var(--muted);
+    flex-shrink: 0;
+    transition: transform 0.3s ease, background 0.2s;
+  }
+  .acc-header.open .acc-arrow { transform: rotate(45deg); background: var(--ink); color: var(--white); border-color: var(--ink); }
+  .acc-body {
+    max-height: 0; overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1);
+  }
+  .acc-body p { font-size: 0.92rem; line-height: 1.7; color: var(--muted); padding-bottom: 1.2rem; }
+
+  /* CALLOUT */
+  .callout {
+    background: var(--ink); color: var(--white);
+    border-radius: 24px; padding: 3rem;
+    margin-top: 3rem; position: relative; overflow: hidden;
+  }
+  .callout h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.8rem; font-weight: 700;
+    letter-spacing: -0.03em; margin-bottom: 0.8rem;
+  }
+  .callout p { font-size: 0.95rem; line-height: 1.6; opacity: 0.7; max-width: 480px; }
+  .callout-pattern {
+    position: absolute; right: -40px; top: -40px;
+    width: 200px; height: 200px; opacity: 0.04;
+    background: radial-gradient(circle, white 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  /* EQUIPO (personas + institución) */
+  .institution-block {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 2.5rem; margin-top: 3rem;
+    align-items: stretch;
+  }
+  .institution-text {
+    border: 1px solid var(--line); border-radius: 20px;
+    padding: 2rem; background: var(--white);
+  }
+  .institution-text h3 {
+    font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 600;
+    margin-bottom: 0.8rem; letter-spacing: -0.02em;
+  }
+  .institution-text p {
+    font-size: 0.9rem; line-height: 1.7; color: var(--muted);
+  }
+  .institution-text p + p { margin-top: 0.9rem; }
+
+  .institution-photo {
+    border: 1px solid var(--line); border-radius: 20px;
+    overflow: hidden; background: var(--line2);
+    min-height: 260px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--muted2); font-size: 0.85rem; text-align: center; padding: 1.5rem;
+  }
+  .institution-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  .people-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem; margin-top: 2.5rem;
+  }
+  .person-card {
+    border: 1px solid var(--line);
+    border-radius: 20px; padding: 1.5rem;
+    background: var(--white); text-align: center;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    opacity: 0; transform: translateY(24px);
+  }
+  .person-card.visible { opacity: 1; transform: translateY(0); }
+  .person-card:hover { border-color: var(--ink); transform: translateY(-4px); box-shadow: 0 16px 48px rgba(0,0,0,0.08); }
+  .person-photo {
+    width: 96px; height: 96px; border-radius: 50%;
+    margin: 0 auto 1.1rem; overflow: hidden;
+    background: var(--line2);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.4rem;
+    color: var(--muted2); border: 1px solid var(--line);
+  }
+  .person-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .person-name { font-family: 'Syne', sans-serif; font-weight: 600; font-size: 1rem; margin-bottom: 0.25rem; }
+  .person-role { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .people-subhead {
+    font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 600;
+    letter-spacing: -0.02em; margin: 4rem 0 0;
+  }
+  .people-note {
+    margin-top: 0.6rem; font-size: 0.85rem; color: var(--muted); max-width: 620px;
+  }
+
+  /* AYUDA (lineas + mapa) */
+  .help-banner {
+    background: var(--ink); color: var(--white);
+    border-radius: 24px; padding: 2.5rem;
+    display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;
+    margin-top: 3rem; position: relative; overflow: hidden;
+  }
+  .help-banner-num {
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: 3.2rem; letter-spacing: -0.04em; line-height: 1;
+  }
+  .help-banner-text h3 { font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 600; margin-bottom: 0.3rem; }
+  .help-banner-text p { font-size: 0.88rem; opacity: 0.7; max-width: 460px; line-height: 1.55; }
+
+  .lines-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5rem; margin-top: 2.5rem;
+  }
+  .line-card {
+    border: 1px solid var(--line); border-radius: 20px; padding: 1.6rem;
+    opacity: 0; transform: translateY(24px);
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  .line-card.visible { opacity: 1; transform: translateY(0); }
+  .line-card:hover { border-color: var(--ink); transform: translateY(-4px); box-shadow: 0 16px 48px rgba(0,0,0,0.08); }
+  .line-number {
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.6rem;
+    letter-spacing: -0.03em; margin-bottom: 0.4rem;
+  }
+  .line-title { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.4rem; }
+  .line-desc { font-size: 0.85rem; color: var(--muted); line-height: 1.55; }
+
+  .map-section { margin-top: 4rem; }
+  #mapaAyuda {
+    height: 460px; width: 100%; border-radius: 20px;
+    border: 1px solid var(--line); margin-top: 2rem;
+    filter: grayscale(0.15);
+  }
+  .map-legend {
+    display: flex; gap: 1.5rem; flex-wrap: wrap;
+    margin-top: 1rem; font-size: 0.8rem; color: var(--muted);
+  }
+  .map-legend span { display: inline-flex; align-items: center; gap: 0.4rem; }
+  .map-legend i { width: 10px; height: 10px; border-radius: 50%; background: var(--ink); display: inline-block; }
+  .map-disclaimer {
+    margin-top: 1.2rem; font-size: 0.78rem; color: var(--muted2);
+    border-top: 1px solid var(--line); padding-top: 1rem;
+  }
+  .leaflet-popup-content-wrapper { border-radius: 12px; font-family: 'DM Sans', sans-serif; }
+  .leaflet-popup-content { font-size: 0.85rem; line-height: 1.5; margin: 0.8rem 1rem; }
+  .leaflet-popup-content b { font-family: 'Syne', sans-serif; }
+
+  .crisis-note {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 16px; padding: 1.2rem 1.5rem; margin-top: 1rem;
+    font-size: 0.85rem; color: var(--muted); line-height: 1.6;
+  }
+
+  /* ENCUESTA */
+  .survey-intro-box {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 20px; padding: 1.6rem 1.8rem; margin-top: 3rem;
+    font-size: 0.86rem; color: var(--muted); line-height: 1.65;
+  }
+  .survey-intro-box strong { color: var(--ink); }
+
+  .survey-question-card {
+    border: 1px solid var(--line); border-radius: 20px;
+    padding: 2rem; margin-top: 2rem;
+    opacity: 0; transform: translateY(24px);
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  .survey-question-card.visible { opacity: 1; transform: translateY(0); }
+  .survey-question-title {
+    font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 600;
+    margin-bottom: 1.3rem; letter-spacing: -0.01em;
+  }
+  .survey-options {
+    display: flex; flex-wrap: wrap; gap: 0.6rem;
+  }
+  .survey-option-btn {
+    font-family: 'DM Sans', sans-serif; font-size: 0.85rem;
+    padding: 0.6rem 1.1rem; border: 1px solid var(--line);
+    border-radius: 100px; background: var(--white); color: var(--ink);
+    cursor: pointer; transition: all 0.2s;
+  }
+  .survey-option-btn:hover { border-color: var(--ink); }
+  .survey-option-btn.selected { background: var(--ink); color: var(--white); border-color: var(--ink); }
+
+  .survey-answered-note {
+    margin-top: 0.9rem; font-size: 0.78rem; color: var(--muted2);
+  }
+
+  .survey-chart-section { margin-top: 3.5rem; }
+  .survey-chart-controls {
+    display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;
+    margin-top: 1.5rem;
+  }
+  .survey-select {
+    font-family: 'DM Sans', sans-serif; font-size: 0.85rem;
+    padding: 0.55rem 1rem; border: 1px solid var(--line);
+    border-radius: 100px; background: var(--white); color: var(--ink);
+    cursor: pointer;
+  }
+  .survey-reset-btn {
+    font-family: 'DM Sans', sans-serif; font-size: 0.8rem;
+    padding: 0.55rem 1rem; border: 1px solid var(--line);
+    border-radius: 100px; background: var(--white); color: var(--muted);
+    cursor: pointer; transition: all 0.2s;
+    margin-left: auto;
+  }
+  .survey-reset-btn:hover { border-color: var(--ink); color: var(--ink); }
+
+  .survey-chart-box {
+    border: 1px solid var(--line); border-radius: 20px;
+    padding: 1.8rem; margin-top: 1.2rem;
+    height: 340px; position: relative;
+  }
+  .survey-chart-empty {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    color: var(--muted2); font-size: 0.85rem; text-align: center; padding: 2rem;
+  }
+  .survey-note-local {
+    margin-top: 1rem; font-size: 0.78rem; color: var(--muted2); line-height: 1.6;
+  }
+
+  /* VIDEOS (Bienestar) */
+  .videos-section { margin-top: 4rem; }
+  .videos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem; margin-top: 2.5rem;
+  }
+  .video-card {
+    border: 1px solid var(--line); border-radius: 20px;
+    overflow: hidden; background: var(--white);
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    opacity: 0; transform: translateY(24px);
+  }
+  .video-card.visible { opacity: 1; transform: translateY(0); }
+  .video-card:hover { border-color: var(--ink); transform: translateY(-4px); box-shadow: 0 16px 48px rgba(0,0,0,0.08); }
+  .video-frame-wrap {
+    position: relative; width: 100%;
+    padding-top: 56.25%; /* 16:9 */
+    background: var(--line2);
+  }
+  .video-frame-wrap iframe {
+    position: absolute; inset: 0; width: 100%; height: 100%; border: none;
+  }
+  .video-info { padding: 1.3rem 1.5rem 1.5rem; }
+  .video-title {
+    font-family: 'Syne', sans-serif; font-size: 0.98rem; font-weight: 600;
+    letter-spacing: -0.01em; margin-bottom: 0.4rem;
+  }
+  .video-desc { font-size: 0.84rem; color: var(--muted); line-height: 1.55; }
+  .video-tag {
+    display: inline-block; margin-top: 0.9rem;
+    font-size: 0.68rem; font-weight: 500;
+    padding: 0.28rem 0.65rem; border-radius: 100px;
+    background: var(--line2); color: var(--muted);
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+
+  /* FOOTER */
+  footer {
+    background: var(--ink); color: var(--white);
+    padding: 5rem 3rem 2rem;
+    position: relative; overflow: hidden;
+  }
+  .footer-grid-bg {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+  .footer-inner { position: relative; z-index: 1; }
+  .footer-top {
+    display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 3rem; margin-bottom: 4rem;
+  }
+  .footer-brand .logo { color: var(--white); font-size: 1.6rem; }
+  .footer-brand p { font-size: 0.88rem; line-height: 1.65; opacity: 0.5; margin-top: 1rem; max-width: 260px; }
+
+  .footer-col h4 {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.8rem; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    opacity: 0.4; margin-bottom: 1rem;
+  }
+  .footer-col ul { list-style: none; }
+  .footer-col li { margin-bottom: 0.6rem; }
+  .footer-col a {
+    font-size: 0.88rem; color: rgba(255,255,255,0.6);
+    text-decoration: none; transition: color 0.2s;
+  }
+  .footer-col a:hover { color: var(--white); }
+
+  .footer-divider { border: none; border-top: 1px solid rgba(255,255,255,0.08); margin-bottom: 1.5rem; }
+  .footer-bottom {
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .footer-copy { font-size: 0.8rem; opacity: 0.35; }
+  .footer-socials { display: flex; gap: 0.75rem; }
+  .social-btn {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem; cursor: pointer;
+    color: rgba(255,255,255,0.5);
+    transition: all 0.2s; background: transparent;
+  }
+  .social-btn:hover { border-color: rgba(255,255,255,0.5); color: white; }
+
+  .footer-marquee {
+    overflow: hidden; border-top: 1px solid rgba(255,255,255,0.08);
+    padding: 1.2rem 0; margin-bottom: 3rem;
+  }
+  .marquee-track {
+    display: flex; gap: 2rem; white-space: nowrap;
+    animation: marquee 20s linear infinite;
+    font-family: 'Syne', sans-serif;
+    font-size: 2rem; font-weight: 700;
+    opacity: 0.06; letter-spacing: -0.03em;
+  }
+  @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal { opacity: 0; transform: translateY(30px); transition: all 0.6s cubic-bezier(0.25,0.46,0.45,0.94); }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  @media (max-width: 900px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-tabs { display: none; }
+    .hero { padding: 6rem 1.5rem 3rem; }
+    .hero-float { display: none; }
+    .content-section { padding: 4rem 1.5rem; }
+    .footer-top { grid-template-columns: 1fr 1fr; gap: 2rem; }
+    footer { padding: 4rem 1.5rem 2rem; }
+    .hero-stats { gap: 2rem; }
+    .cards-grid { grid-template-columns: 1fr; }
+    .institution-block { grid-template-columns: 1fr; }
+    .help-banner { padding: 2rem; }
+    .help-banner-num { font-size: 2.4rem; }
+    #mapaAyuda { height: 360px; }
+    .mobile-tabs {
+      display: flex !important;
+      overflow-x: auto; gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      border-bottom: 1px solid var(--line);
+      position: sticky; top: 65px; z-index: 50;
+      background: var(--white);
+    }
+  }
+
+  .mobile-tabs { display: none; }
+  .mobile-tab {
+    font-size: 0.8rem; font-weight: 500;
+    padding: 0.45rem 1rem; border-radius: 100px;
+    border: 1px solid var(--line); background: var(--white);
+    color: var(--muted); cursor: pointer; white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .mobile-tab.active { background: var(--ink); color: white; border-color: var(--ink); }
+</style>
+</head>
+<body>
+
+<nav id="navbar">
+  <a href="#" class="logo">
+    <span class="logo-dot"></span> BTS 3ro 026
+  </a>
+  <div class="nav-tabs" id="navTabs">
+    <button class="nav-tab active" data-tab="inicio">Inicio</button>
+    <button class="nav-tab" data-tab="salud-digital">Salud Digital</button>
+    <button class="nav-tab" data-tab="psicologia">Psicología</button>
+    <button class="nav-tab" data-tab="bienestar">Bienestar</button>
+    <button class="nav-tab" data-tab="equipo">Equipo</button>
+    
+    <button class="nav-tab" data-tab="ayuda">Ayuda</button>
+  </div>
+  <button class="nav-cta" data-tab="ayuda">¿Necesitás ayuda?</button>
+</nav>
+
+<div class="mobile-tabs" id="mobileTabs">
+  <button class="mobile-tab active" data-tab="inicio">Inicio</button>
+  <button class="mobile-tab" data-tab="salud-digital">Salud Digital</button>
+  <button class="mobile-tab" data-tab="psicologia">Psicología</button>
+  <button class="mobile-tab" data-tab="bienestar">Bienestar</button>
+  <button class="mobile-tab" data-tab="equipo">Equipo</button>
+ 
+  <button class="mobile-tab" data-tab="ayuda">Ayuda</button>
+</div>
+
+<!-- INICIO -->
+<div class="section active" id="section-inicio">
+  <div class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-grid"></div>
+    <div class="hero-content">
+      <div class="hero-eyebrow"><span></span> Colegio Nacional EMD Doctor Fernando de la Mora</div>
+      <h1 class="hero-title">Cuida tu mente <em>en esta era</em> Digital</h1>
+      <p class="hero-desc">Información basada en evidencia sobre salud digital, psicología y bienestar emocional. Todo lo que necesitas para vivir mejor.</p>
+      <p class="hero-audience"><strong>Este espacio está dirigido a los alumnos y alumnas</strong> del Colegio Nacional de Educación Media Diversificada Doctor Fernando de la Mora, como parte de un proyecto educativo de 3er año de Bachillerato Técnico en Salud.</p>
+      <div class="hero-actions">
+        <button class="btn-primary" data-tab="ayuda">¿Necesitás ayuda? Consultá aquí</button>
+        <button class="btn-secondary" data-tab="salud-digital">Explorar contenido</button>
+      </div>
+      <div class="hero-stats">
+        <div>
+          <div class="stat-num">40%</div>
+          <div class="stat-label">de adultos sufre fatiga digital crónica</div>
+        </div>
+        <div>
+          <div class="stat-num">7h</div>
+          <div class="stat-label">promedio de pantallas por día</div>
+        </div>
+        <div>
+          <div class="stat-num">3×</div>
+          <div class="stat-label">más estrés por hiperconectividad</div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-float">
+      <div class="float-card">
+        <div class="float-metric">Bienestar emocional</div>
+        <div class="float-val">84%</div>
+        <div class="float-bar"><div class="float-bar-fill" style="width: 84%"></div></div>
+      </div>
+      <div class="float-card">
+        <div class="float-metric">Calidad del sueño</div>
+        <div class="float-val">6.2h</div>
+        <div class="float-bar"><div class="float-bar-fill" style="width: 62%"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-section">
+    <div class="section-label reveal">Áreas principales</div>
+    <h2 class="section-title reveal">Todo lo que afecta <br>tu bienestar mental</h2>
+    <p class="section-desc reveal">Tres pilares fundamentales para entender cómo la tecnología y la psicología se interrelacionan en tu vida cotidiana.</p>
+    <div class="cards-grid">
+      <div class="card" style="transition-delay: 0s">
+        <div class="card-icon">🧠</div>
+        <div class="card-title">Salud Digital</div>
+        <p class="card-text">Comprende cómo el uso de dispositivos y redes sociales impacta tu cerebro, tus hábitos y tu calidad de vida.</p>
+        <span class="card-tag">Tecnología · Neurociencia</span>
+      </div>
+      <div class="card" style="transition-delay: 0.1s">
+        <div class="card-icon">💭</div>
+        <div class="card-title">Psicología Cognitiva</div>
+        <p class="card-text">Explora los mecanismos del pensamiento, la emoción y el comportamiento humano desde una perspectiva científica.</p>
+        <span class="card-tag">Cognición · Conducta</span>
+      </div>
+      <div class="card" style="transition-delay: 0.2s">
+        <div class="card-icon">🌿</div>
+        <div class="card-title">Bienestar Integral</div>
+        <p class="card-text">Estrategias prácticas para gestionar el estrés, mejorar el sueño y cultivar relaciones saludables en un mundo hiperconectado.</p>
+        <span class="card-tag">Mindfulness · Hábitos</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SALUD DIGITAL -->
+<div class="section" id="section-salud-digital">
+  <div class="content-section">
+    <div class="section-label reveal">Salud Digital</div>
+    <h2 class="section-title reveal">Tu relación con <br>la tecnología</h2>
+    <p class="section-desc reveal">La salud digital implica mantener un equilibrio entre el uso de tecnología y el bienestar físico y mental.</p>
+
+    <div class="cards-grid" style="margin-top: 3rem">
+      <div class="card" style="transition-delay: 0s">
+        <div class="card-icon">📱</div>
+        <div class="card-title">Nomofobia</div>
+        <p class="card-text">El miedo irracional a quedarse sin teléfono afecta al 66% de los usuarios. Aprende a identificar signos de dependencia digital y cómo gestionarla.</p>
+        <span class="card-tag">Adicción digital</span>
+      </div>
+      <div class="card" style="transition-delay: 0.1s">
+        <div class="card-icon">👁️</div>
+        <div class="card-title">Fatiga Visual Digital</div>
+        <p class="card-text">Síndrome CVS: ojos secos, dolor de cabeza y visión borrosa tras horas frente a pantallas. La regla 20-20-20 puede transformar tu salud ocular.</p>
+        <span class="card-tag">Salud ocular</span>
+      </div>
+      <div class="card" style="transition-delay: 0.2s">
+        <div class="card-icon">🌙</div>
+        <div class="card-title">Higiene del Sueño Digital</div>
+        <p class="card-text">La luz azul suprime la melatonina hasta un 50%. Desconectarse 90 minutos antes de dormir mejora significativamente la calidad del sueño.</p>
+        <span class="card-tag">Sueño · Melatonina</span>
+      </div>
+      <div class="card" style="transition-delay: 0.3s">
+        <div class="card-icon">🔔</div>
+        <div class="card-title">Sobrecarga de Información</div>
+        <p class="card-text">El infoxication o infobesidad ocurre cuando recibimos más información de la que podemos procesar, generando ansiedad y parálisis decisional.</p>
+        <span class="card-tag">Mindfulness digital</span>
+      </div>
+      <div class="card" style="transition-delay: 0.4s">
+        <div class="card-icon">🤳</div>
+        <div class="card-title">Redes Sociales y Autoestima</div>
+        <p class="card-text">El efecto "highlight reel": compararse con versiones curadas de otros erosiona la autoestima. El FOMO aumenta síntomas de depresión hasta un 30%.</p>
+        <span class="card-tag">Psicología social</span>
+      </div>
+      <div class="card" style="transition-delay: 0.5s">
+        <div class="card-icon">⚡</div>
+        <div class="card-title">Detox Digital</div>
+        <p class="card-text">Períodos planificados sin tecnología reducen los niveles de cortisol, mejoran la atención sostenida y fortalecen los vínculos interpersonales.</p>
+        <span class="card-tag">Desconexión · Bienestar</span>
+      </div>
+    </div>
+
+    <div class="callout reveal" style="margin-top: 4rem">
+      <div class="callout-pattern"></div>
+      <h3>¿Sabías que pasamos más de 11 años de vida en pantallas?</h3>
+      <p>En promedio, una persona que vive 80 años habrá pasado 11 años frente a dispositivos digitales. Elegir conscientemente cómo usar ese tiempo puede cambiar radicalmente tu bienestar.</p>
+    </div>
+  </div>
+</div>
+
+<!-- PSICOLOGÍA -->
+<div class="section" id="section-psicologia">
+  <div class="content-section">
+    <div class="section-label reveal">Psicología</div>
+    <h2 class="section-title reveal">Entiende cómo <br>funciona tu mente</h2>
+    <p class="section-desc reveal">Conceptos clave de la psicología moderna que te ayudarán a comprenderte mejor a ti mismo y a los demás.</p>
+
+    <div class="tips-list">
+      <div class="tip-item">
+        <div class="tip-num">01</div>
+        <div class="tip-content">
+          <h3>Terapia Cognitivo-Conductual (TCC)</h3>
+          <p>La TCC es la psicoterapia más respaldada por la evidencia. Trabaja identificando y modificando patrones de pensamiento distorsionados que generan emociones negativas y conductas problemáticas. Es efectiva para la ansiedad, depresión, TOC y fobias.</p>
+        </div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-num">02</div>
+        <div class="tip-content">
+          <h3>Inteligencia Emocional</h3>
+          <p>Desarrollada por Goleman, la IE comprende la capacidad de reconocer, entender y gestionar nuestras emociones y las de los demás. Las personas con alta IE tienen mejores relaciones, mayor rendimiento laboral y mejor salud mental.</p>
+        </div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-num">03</div>
+        <div class="tip-content">
+          <h3>Neuroplasticidad</h3>
+          <p>El cerebro adulto puede reorganizarse, crear nuevas conexiones neuronales y adaptarse a lo largo de toda la vida. La meditación, el aprendizaje continuo y el ejercicio físico son potentes promotores de la neuroplasticidad.</p>
+        </div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-num">04</div>
+        <div class="tip-content">
+          <h3>Sesgos Cognitivos</h3>
+          <p>El cerebro humano utiliza atajos mentales (heurísticas) que a veces producen errores sistemáticos de juicio. Conocer sesgos como el de confirmación, el efecto Dunning-Kruger o el anclaje te permite tomar decisiones más racionales.</p>
+        </div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-num">05</div>
+        <div class="tip-content">
+          <h3>Apego y Relaciones</h3>
+          <p>La teoría del apego de Bowlby explica cómo los vínculos tempranos con los cuidadores moldean nuestros patrones relacionales adultos. Identificar tu estilo de apego (seguro, ansioso, evitativo) puede transformar tus relaciones.</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top: 4rem">
+      <h3 class="section-title reveal" style="font-size: 1.6rem; margin-bottom: 2rem">Preguntas frecuentes</h3>
+      <div class="accordion" id="accordion">
+        <div class="acc-item">
+          <button class="acc-header" onclick="toggleAcc(this)">
+            ¿Cuál es la diferencia entre ansiedad y estrés?
+            <span class="acc-arrow">+</span>
+          </button>
+          <div class="acc-body">
+            <p>El estrés es una respuesta a una amenaza externa identificable y desaparece cuando el estímulo cesa. La ansiedad persiste incluso sin un detonante claro, anticipando amenazas futuras. Ambos activan el eje HPA y el sistema nervioso simpático, pero la ansiedad tiene un componente de anticipación que puede volverse crónico.</p>
+          </div>
+        </div>
+        <div class="acc-item">
+          <button class="acc-header" onclick="toggleAcc(this)">
+            ¿Qué es el mindfulness y qué evidencia lo respalda?
+            <span class="acc-arrow">+</span>
+          </button>
+          <div class="acc-body">
+            <p>El mindfulness es la práctica de prestar atención plena al momento presente sin juzgar. Más de 6,000 estudios lo respaldan: reduce la ansiedad y depresión, mejora la regulación emocional, aumenta el grosor de la corteza prefrontal y reduce marcadores inflamatorios. El programa MBSR de Jon Kabat-Zinn es el más estudiado.</p>
+          </div>
+        </div>
+        <div class="acc-item">
+          <button class="acc-header" onclick="toggleAcc(this)">
+            ¿Cuándo es recomendable buscar ayuda psicológica?
+            <span class="acc-arrow">+</span>
+          </button>
+          <div class="acc-body">
+            <p>Cuando el malestar emocional persiste más de dos semanas, interfiere con el trabajo o las relaciones, o afecta el sueño y el apetito de forma significativa. No es necesario tener un trastorno grave para beneficiarse de la psicoterapia; muchas personas la utilizan como herramienta de crecimiento personal.</p>
+          </div>
+        </div>
+        <div class="acc-item">
+          <button class="acc-header" onclick="toggleAcc(this)">
+            ¿Cómo funciona la terapia de exposición para las fobias?
+            <span class="acc-arrow">+</span>
+          </button>
+          <div class="acc-body">
+            <p>La terapia de exposición funciona mediante la habituación y extinción del miedo condicionado. El terapeuta crea una jerarquía de situaciones temidas y el paciente se expone gradualmente a ellas (real o imaginariamente), aprendiendo que el estímulo no es peligroso. El cerebro reescribe la asociación miedo-estímulo.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BIENESTAR -->
+<div class="section" id="section-bienestar">
+  <div class="content-section">
+    <div class="section-label reveal">Bienestar</div>
+    <h2 class="section-title reveal">Hábitos que <br>transforman tu vida</h2>
+    <p class="section-desc reveal">Estrategias prácticas y basadas en evidencia para mejorar tu calidad de vida de forma sostenible.</p>
+
+    <div class="cards-grid" style="margin-top: 3rem">
+      <div class="card" style="transition-delay: 0s">
+        <div class="card-icon">😴</div>
+        <div class="card-title">Optimiza tu sueño</div>
+        <p class="card-text">El sueño consolida la memoria, regula el metabolismo y limpia proteínas tóxicas del cerebro (sistema glinfático). 7-9 horas a horarios regulares es la clave. Evita cafeína 6h antes de dormir.</p>
+        <span class="card-tag">Ciencia del sueño</span>
+      </div>
+      <div class="card" style="transition-delay: 0.1s">
+        <div class="card-icon">🏃</div>
+        <div class="card-title">Movimiento como medicina</div>
+        <p class="card-text">30 minutos de ejercicio aeróbico genera BDNF (fertilizante cerebral), eleva dopamina y serotonina. Tan efectivo como antidepresivos en depresión leve-moderada según múltiples metaanálisis.</p>
+        <span class="card-tag">Neurociencia · Deporte</span>
+      </div>
+      <div class="card" style="transition-delay: 0.2s">
+        <div class="card-icon">🧘</div>
+        <div class="card-title">Regulación del estrés</div>
+        <p class="card-text">La respiración diafragmática (4-7-8) activa el nervio vago y el sistema parasimpático en segundos. El cold exposure, el journaling y la gratitud son herramientas de alta evidencia.</p>
+        <span class="card-tag">Neurobiología</span>
+      </div>
+      <div class="card" style="transition-delay: 0.3s">
+        <div class="card-icon">🥦</div>
+        <div class="card-title">Nutrición y cerebro</div>
+        <p class="card-text">El eje intestino-cerebro es bidireccional. El 95% de la serotonina se produce en el intestino. La dieta mediterránea reduce el riesgo de depresión. Los omega-3 y la vitamina D son esenciales para la función cognitiva.</p>
+        <span class="card-tag">Psiconutrición</span>
+      </div>
+      <div class="card" style="transition-delay: 0.4s">
+        <div class="card-icon">👥</div>
+        <div class="card-title">Conexión social</div>
+        <p class="card-text">El estudio de Harvard sobre el desarrollo adulto (80 años de seguimiento) concluyó que la calidad de las relaciones es el predictor más fuerte de salud y felicidad. La soledad es tan dañina como fumar 15 cigarrillos al día.</p>
+        <span class="card-tag">Relaciones · Longevidad</span>
+      </div>
+      <div class="card" style="transition-delay: 0.5s">
+        <div class="card-icon">🎯</div>
+        <div class="card-title">Propósito y significado</div>
+        <p class="card-text">El concepto japonés Ikigai (razón de ser) y el Logoterapia de Frankl demuestran que tener un propósito reduce la mortalidad, mejora la resiliencia ante adversidades y aumenta la esperanza de vida hasta 7 años.</p>
+        <span class="card-tag">Psicología positiva</span>
+      </div>
+    </div>
+
+    <div class="callout reveal" style="margin-top: 4rem">
+      <div class="callout-pattern"></div>
+      <h3>El bienestar no es un destino, es una práctica diaria</h3>
+      <p>La psicología positiva moderna entiende el bienestar como el modelo PERMA: Emociones Positivas, Compromiso, Relaciones, Significado y Logro. Pequeños cambios diarios crean transformaciones profundas a largo plazo.</p>
+    </div>
+
+    <div class="videos-section">
+      <div class="section-label reveal">Recursos audiovisuales</div>
+      <h3 class="section-title reveal" style="font-size:1.8rem; margin-bottom:0.6rem;">Videos recomendados</h3>
+      <p class="section-desc reveal">Una selección de videos para profundizar en hábitos de bienestar..</p>
+      <div class="videos-grid" id="videosGrid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- EQUIPO -->
+<div class="section" id="section-equipo">
+  <div class="content-section">
+    <div class="section-label reveal">Sobre nosotros</div>
+    <h2 class="section-title reveal">Las personas <br>detrás del proyecto</h2>
+    <p class="section-desc reveal">Este sitio es un proyecto educativo creado por estudiantes de 3er año de Bachillerato Técnico en Salud, dirigido específicamente a los alumnos y alumnas del colegio.</p>
+
+    <div class="institution-block">
+      <div class="institution-text">
+        <h3>Colegio Nacional EMD Doctor Fernando de la Mora</h3>
+        <p>El Colegio Nacional de Educación Media Diversificada Doctor Fernando de la Mora es una institución educativa pública que forma a adolescentes y jóvenes en distintas modalidades de bachillerato, incluyendo el Bachillerato Técnico en Salud.</p>
+        <p>Este proyecto nace desde una de sus aulas con el objetivo de acercar información confiable sobre salud digital y salud mental a la propia comunidad estudiantil, y de dejar un canal claro para pedir ayuda cuando haga falta.</p>
+        < style="margin-top:1.2rem; font-size:0.78rem; color:var(--muted2);">Editá este párrafo con la reseña oficial de la institución cuando la tengan definida (historia, ubicación, turno, etc.).</p>
+      </div>
+      <div class="institution-photo">
+         <img src="fotos/colegio.webp" alt="Colegio Nacional EMD Doctor Fernando de la Mora">      </div>
+    </div>
+
+    <h3 class="people-subhead">Estudiantes</h3>
+    <div class="people-grid">
+      <div class="person-card">
+        <div class="person-photo"><img src="fotos/ariel.jpeg" alt="Ariel Benegas"></div>
+        <div class="person-name">Ariel Benegas</div>
+        <div class="person-role">Estudiante</div>
+      </div>
+      <div class="person-card">
+        <div class="person-photo"><img src="fotos/blas.jpeg" alt="Blas Benitez"></div>
+        <div class="person-name">Blas Benitez</div>
+        <div class="person-role">Estudiante</div>
+      </div>
+      <div class="person-card">
+        <div class="person-photo"><img src="fotos/ricardo.jpeg" alt="Mauricio Ricardo"></div>
+        <div class="person-name">Mauricio Ricardo</div>
+        <div class="person-role">Estudiante</div>
+      </div>
+      <div class="person-card">
+        <div class="person-photo"><img src="fotos/luis.jpeg" alt="Luis Casco"></div>
+        <div class="person-name">Luis Casco</div>
+        <div class="person-role">Estudiante</div>
+      </div>
+      <div class="person-card">
+        <div class="person-photo"><img src="fotos/juan.jpeg" alt="Juan Ozorio"></div>
+        <div class="person-name">Juan Ozorio</div>
+        <div class="person-role">Estudiante</div>
+      </div>
+      <div class="person-card">
+        <div class="person-photo"><img src="fotos/ivan.jpeg" alt="Ivan Insfran"></div>
+        <div class="person-name">Ivan Insfran</div>
+        <div class="person-role">Estudiante</div>
+      </div>
+    </div>
+
+    <h3 class="people-subhead">Docentes guía del proyecto</h3>
+    <p class="people-note">Espacio reservado para las docentes que acompañaron el proyecto.</p>
+    <div class="people-grid">
+      <div class="person-card">
+        <div class="person-photo">DG</div>
+        <div class="person-name">Dr. Sonia Jimenez</div>
+        <div class="person-role">Salud PyC, Patologia / Odontologa</div>
+      </div>
+      <div class="person-card">
+        <div class="person-photo">DG</div>
+        <div class="person-name">Lic. Liz Villalba</div>
+        <div class="person-role">Practica C./ Enfermera</div>
+      </div>
+    </div>
+
+    <p class="people-note" style="margin-top:4rem;">Si necesitás hablar con alguien sobre tu salud emocional, revisá la pestaña <strong>Ayuda</strong>: ahí encontrás líneas gratuitas y hospitales públicos disponibles todos los días.</p>
+  </div>
+</div>
+
+<!-- ENCUESTA -->
+<div class="section" id="section-encuesta">
+  <div class="content-section">
+    <div class="section-label reveal">Encuesta</div>
+    <h2 class="section-title reveal">Contanos cómo vivís <br>tu salud digital</h2>
+    <p class="section-desc reveal">Un espacio para hasta 10 preguntas cortas sobre hábitos digitales y bienestar. Cada respuesta se refleja al instante en una gráfica.</p>
+
+    <div class="survey-intro-box reveal">
+      Esta encuesta está lista para completarse con hasta <strong>10 preguntas</strong>. Por ahora hay una pregunta de ejemplo funcionando para mostrar cómo se ve. El código está preparado (ver comentarios en el archivo, sección <strong>PREGUNTAS_ENCUESTA</strong>) para que se agreguen las preguntas que definan más adelante, sin tener que rehacer el diseño.
+    </div>
+
+    <div id="surveyQuestionsContainer"></div>
+
+    <div class="survey-chart-section">
+      <h3 class="section-title reveal" style="font-size:1.4rem; margin-bottom:0.4rem;">Resultados en vivo</h3>
+      <p class="section-desc reveal">Elegí una pregunta para ver cómo se van acomodando las respuestas en la gráfica.</p>
+      <div class="survey-chart-controls">
+        <select class="survey-select" id="surveyChartSelect"></select>
+        <button class="survey-reset-btn" id="surveyResetBtn">Borrar mis respuestas</button>
+      </div>
+      <div class="survey-chart-box">
+        <canvas id="surveyChartCanvas"></canvas>
+        <div class="survey-chart-empty" id="surveyChartEmpty" style="display:none;">Todavía no hay respuestas para esta pregunta en este dispositivo.</div>
+      </div>
+      <p class="survey-note-local">Nota: por ahora estos resultados se guardan solo en <strong>este dispositivo/navegador</strong>, para que puedan probar cómo funciona la gráfica. Para juntar las respuestas de todo el curso o del colegio en un solo lugar, más adelante hay que conectar la encuesta a un almacenamiento compartido (por ejemplo, una base de datos gratuita) — se puede sumar cuando definan las preguntas finales.</p>
+    </div>
+  </div>
+</div>
+
+<!-- AYUDA -->
+<div class="section" id="section-ayuda">
+  <div class="content-section">
+    <div class="section-label reveal">Ayuda</div>
+    <h2 class="section-title reveal">Si necesitás hablar <br>con alguien, hacelo</h2>
+    <p class="section-desc reveal">Líneas de atención gratuitas en Paraguay y centros públicos de salud en Asunción y el Departamento Central. Pedir ayuda es un signo de fortaleza, no de debilidad.</p>
+
+    <div class="help-banner reveal">
+      <div class="help-banner-num">155</div>
+      <div class="help-banner-text">
+        <h3>Línea 155 — Salud Mental (MSPBS)</h3>
+        <p>Gratuita, confidencial y disponible las 24 horas, los 365 días del año, desde cualquier teléfono del país. Atiende crisis de ansiedad, ideas suicidas, violencia, adicciones y orientación general. Se articula con el 911, el SEME y el Fono Ayuda 147.</p>
+      </div>
+    </div>
+
+    <div class="lines-grid">
+      <div class="line-card">
+        <div class="line-number">147</div>
+        <div class="line-title">Fono Ayuda — Niñez y Adolescencia</div>
+        <div class="line-desc">Servicio gratuito y confidencial del Ministerio de la Niñez y la Adolescencia, disponible las 24 horas para niños, niñas y adolescentes.</div>
+      </div>
+      <div class="line-card">
+        <div class="line-number">911</div>
+        <div class="line-title">Emergencias</div>
+        <div class="line-desc">Para situaciones de riesgo inmediato para la vida, propia o de terceros. Se coordina con la Línea 155 y el SEME cuando hay riesgo de salud mental.</div>
+      </div>
+      <div class="line-card">
+        <div class="line-number">021 293 608</div>
+        <div class="line-title">Hospital Psiquiátrico — Urgencias</div>
+        <div class="line-desc">Av. Venezuela 1004, Asunción. Atención de urgencias psiquiátricas sin necesidad de turno previo, las 24 horas. Línea de derivación para profesionales: 0986 877 410.</div>
+      </div>
+      <div class="line-card">
+        <div class="line-number">021 298 352</div>
+        <div class="line-title">CENPTRA — Adicciones</div>
+        <div class="line-desc">Centro Nacional de Prevención y Tratamiento de Adicciones. Venezuela 1140 esq. Concordia, Asunción. Atención pública para consumo problemático de sustancias.</div>
+      </div>
+    </div>
+
+    <h3 class="section-title reveal" style="font-size:1.6rem; margin-top:4rem; margin-bottom:0.6rem;">Hospitales públicos generales</h3>
+    <p class="section-desc reveal">También podés acudir a hospitales públicos generales para una primera consulta o derivación, aunque no sean especializados en salud mental o salud digital.</p>
+    <div class="lines-grid" id="hospitalesGeneralesGrid"></div>
+
+    <div class="crisis-note reveal">
+      Si vos o alguien que conocés está en peligro inmediato, llamá ya al <strong>911</strong> o acercate a la guardia del hospital público más cercano. La Línea <strong>155</strong> también puede coordinar una respuesta in situ.
+    </div>
+
+    <div class="map-section">
+      <h3 class="section-title reveal" style="font-size:1.6rem; margin-bottom:0.6rem;">Centros públicos de salud</h3>
+      <p class="section-desc reveal">Hospitales e institutos públicos en Asunción y el Departamento Central, tanto especializados en salud mental como hospitales generales. Antes de ir, te recomendamos llamar para confirmar horarios y si se necesita turno.</p>
+      <div id="mapaAyuda"></div>
+      <div class="map-legend">
+        <span><i></i> Institución pública de salud</span>
+      </div>
+      <div class="map-disclaimer">
+        Las ubicaciones del mapa son aproximadas y están basadas en direcciones publicadas por el Ministerio de Salud Pública y Bienestar Social (MSPBS) y medios locales. Verificá siempre la dirección y el horario por teléfono antes de trasladarte.
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-grid-bg"></div>
+  <div class="footer-inner">
+    <div class="footer-marquee">
+      <div class="marquee-track">
+        SALUD DIGITAL &nbsp;·&nbsp; PSICOLOGÍA &nbsp;·&nbsp; BIENESTAR &nbsp;·&nbsp; MINDFULNESS &nbsp;·&nbsp; NEUROCIENCIA &nbsp;·&nbsp; TERAPIA &nbsp;·&nbsp; SALUD DIGITAL &nbsp;·&nbsp; PSICOLOGÍA &nbsp;·&nbsp; BIENESTAR &nbsp;·&nbsp; MINDFULNESS &nbsp;·&nbsp; NEUROCIENCIA &nbsp;·&nbsp; TERAPIA &nbsp;·&nbsp;
+      </div>
+    </div>
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="#" class="logo"><span style="width:8px;height:8px;background:white;border-radius:50%;display:inline-block"></span> BTS 3ro 026</a>
+        <p>Proyecto educativo sobre salud digital y psicología, dirigido a los alumnos del Colegio Nacional EMD Doctor Fernando de la Mora.</p>
+        <div style="margin-top:1.5rem; padding-top:1.5rem; border-top:1px solid rgba(255,255,255,0.08);">
+          <p style="font-size:0.72rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; opacity:0.4; margin-bottom:0.8rem; font-family:'Syne',sans-serif;">Miembros</p>
+          <ul style="list-style:none; display:flex; flex-direction:column; gap:0.35rem;">
+            <li style="font-size:0.85rem; color:rgba(255,255,255,0.65);">Ariel Benegas</li>
+            <li style="font-size:0.85rem; color:rgba(255,255,255,0.65);">Blas Benitez</li>
+            <li style="font-size:0.85rem; color:rgba(255,255,255,0.65);">Mauricio Ricardo</li>
+            <li style="font-size:0.85rem; color:rgba(255,255,255,0.65);">Luis Casco</li>
+            <li style="font-size:0.85rem; color:rgba(255,255,255,0.65);">Juan Ozorio</li>
+            <li style="font-size:0.85rem; color:rgba(255,255,255,0.65);">Ivan Insfran</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Contenido</h4>
+        <ul>
+          <li><a href="#" data-tab="salud-digital">Salud Digital</a></li>
+          <li><a href="#" data-tab="psicologia">Psicología</a></li>
+          <li><a href="#" data-tab="bienestar">Bienestar</a></li>
+          <li><a href="#" data-tab="encuesta">Encuesta</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Temas</h4>
+        <ul>
+          <li><a href="#">Ansiedad</a></li>
+          <li><a href="#">Mindfulness</a></li>
+          <li><a href="#">Sueño</a></li>
+          <li><a href="#">Redes sociales</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Info</h4>
+        <ul>
+          <li><a href="#" data-tab="equipo">Equipo</a></li>
+          <li><a href="#">Metodología</a></li>
+          <li><a href="#">Privacidad</a></li>
+          <li><a href="#" data-tab="ayuda">Contacto</a></li>
+        </ul>
+      </div>
+    </div>
+    <hr class="footer-divider">
+    <div style="margin-bottom:1.5rem; padding:1.2rem 1.5rem; border:1px solid rgba(255,255,255,0.08); border-radius:16px; display:flex; align-items:center; gap:1.5rem; flex-wrap:wrap;">
+      <div style="width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:0.7rem;color:rgba(255,255,255,0.5);flex-shrink:0;">EMD</div>
+      <div>
+        <p style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.9rem;color:rgba(255,255,255,0.85);letter-spacing:-0.01em;">Colegio Nacional EMD Doctor Fernando de la Mora</p>
+        <p style="font-size:0.78rem;color:rgba(255,255,255,0.4);margin-top:0.2rem;">Tercer Año · Bachillerato Técnico en Salud · Sitio dirigido a alumnos de la institución</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p class="footer-copy">© 2026 BTS 3ro 026. Información educativa, no reemplaza atención profesional.</p>
+      <div class="footer-socials">
+        <button class="social-btn">in</button>
+        <button class="social-btn">tw</button>
+        <button class="social-btn">ig</button>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script>
+// NAVBAR SCROLL
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 40);
+});
+
+// TAB SWITCHING (basado en data-tab)
+function switchTab(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  const target = document.getElementById('section-' + id);
+  if (target) target.classList.add('active');
+
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === id));
+  document.querySelectorAll('.mobile-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === id));
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  setTimeout(observeCards, 100);
+
+  if (id === 'ayuda') setTimeout(initMapaAyuda, 150);
+  if (id === 'encuesta') setTimeout(renderSurveyChart, 150);
+}
+
+document.querySelectorAll('[data-tab]').forEach(el => {
+  el.addEventListener('click', (e) => {
+    e.preventDefault();
+    switchTab(el.dataset.tab);
+  });
+});
+
+// SCROLL ANIMATIONS
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+}, { threshold: 0.1 });
+
+function observeCards() {
+  document.querySelectorAll('.card, .tip-item, .reveal, .person-card, .line-card, .survey-question-card, .video-card').forEach(el => observer.observe(el));
+}
+observeCards();
+
+// ACCORDION
+function toggleAcc(btn) {
+  const body = btn.nextElementSibling;
+  const isOpen = btn.classList.contains('open');
+  document.querySelectorAll('.acc-header.open').forEach(b => {
+    b.classList.remove('open');
+    b.nextElementSibling.style.maxHeight = '0';
+  });
+  if (!isOpen) {
+    btn.classList.add('open');
+    body.style.maxHeight = body.scrollHeight + 'px';
+  }
+}
+
+// ==========================================================================
+// VIDEOS_BIENESTAR — 6 recuadros con videos de YouTube.
+// Reemplazá "videoId" con el ID del video real (lo que va después de
+// "v=" en la URL de YouTube, ej: https://www.youtube.com/watch?v=XXXXXXXXXXX)
+// ==========================================================================
+const VIDEOS_BIENESTAR = [
+  { videoId: 'Unnvetjp0lk', titulo: 'Cómo mejorar tu calidad de sueño', desc: 'Hábitos y rutinas para descansar mejor cada noche.', tag: 'Sueño' },
+  { videoId: 'tc5JeKXae08', titulo: 'Ejercicio y salud mental', desc: 'Por qué moverte 30 minutos al día cambia tu estado de ánimo.', tag: 'Movimiento' },
+  { videoId: 'EGO5m_DBzF8', titulo: 'Respiración para bajar el estrés', desc: 'Técnica de respiración 4-7-8 explicada paso a paso.', tag: 'Estrés' },
+  { videoId: 'QskCdU4IgZ0#', titulo: 'Alimentación y cerebro', desc: 'Cómo la nutrición influye en tu ánimo y concentración.', tag: 'Nutrición' },
+  { videoId: 'aP9VOFoFOho', titulo: 'Construir vínculos saludables', desc: 'La ciencia detrás de las relaciones que nos hacen bien.', tag: 'Relaciones' },
+  { videoId: 'owr6b1WxWHM', titulo: 'Encontrar tu propósito', desc: 'Ikigai y sentido de vida aplicados al día a día.', tag: 'Propósito' }
+];
+
+function renderVideosBienestar() {
+  const grid = document.getElementById('videosGrid');
+  if (!grid) return;
+  grid.innerHTML = VIDEOS_BIENESTAR.map((v, idx) => `
+    <div class="video-card" style="transition-delay:${idx * 0.05}s">
+      <div class="video-frame-wrap">
+        <iframe src="https://www.youtube.com/embed/${v.videoId}" title="${v.titulo}" loading="lazy" allowfullscreen></iframe>
+      </div>
+      <div class="video-info">
+        <div class="video-title">${v.titulo}</div>
+        <p class="video-desc">${v.desc}</p>
+        <span class="video-tag">${v.tag}</span>
+      </div>
+    </div>
+  `).join('');
+  observeCards();
+}
+renderVideosBienestar();
+
+// ==========================================================================
+// HOSPITALES_GENERALES — hospitales públicos generales (no especializados)
+// para que la gente pueda consultar aunque el motivo no sea de salud mental.
+// ==========================================================================
+const HOSPITALES_GENERALES = [
+  { numero: '021 204 350', titulo: 'Hospital de Clínicas', desc: 'Campus de la UNA, San Lorenzo. Hospital universitario público de referencia, con guardia y múltiples especialidades.' },
+  { numero: '021 200 730', titulo: 'Hospital Nacional de Itauguá', desc: 'Itauguá, Departamento Central. Guardia 24 horas y atención general para toda la zona.' },
+  { numero: '021 204 300', titulo: 'Hospital Central del IPS', desc: 'Asunción. Atención para asegurados del Instituto de Previsión Social, incluye guardia y especialidades.' },
+  { numero: '021 561 129', titulo: 'Hospital General de San Lorenzo (Calle\'í)', desc: 'Av. Dr. Gabriel Pellón y Azara, San Lorenzo. Guardia y consultas generales, además de salud mental.' },
+  { numero: '021 905 232', titulo: 'Hospital Distrital de Lambaré', desc: 'Lambaré, Departamento Central. Atención primaria y guardia para la zona sur del Central.' },
+  { numero: '021 585 001', titulo: 'Hospital Regional de Luque', desc: 'Luque, Departamento Central. Guardia 24 horas y consultas de medicina general.' }
+];
+
+function renderHospitalesGenerales() {
+  const grid = document.getElementById('hospitalesGeneralesGrid');
+  if (!grid) return;
+  grid.innerHTML = HOSPITALES_GENERALES.map(h => `
+    <div class="line-card">
+      <div class="line-number" style="font-size:1.05rem;">${h.numero}</div>
+      <div class="line-title">${h.titulo}</div>
+      <div class="line-desc">${h.desc}</div>
+    </div>
+  `).join('');
+  observeCards();
+}
+renderHospitalesGenerales();
+
+// MAPA DE AYUDA (Leaflet) — instituciones públicas, Asunción y Central
+const HOSPITALES = [
+  {
+    nombre: "Hospital Psiquiátrico (Hospital Neuropsiquiátrico)",
+    lat: -25.2968, lng: -57.6243,
+    direccion: "Av. Venezuela 1004, Asunción",
+    telefono: "021 293 608 · Urgencias 24h sin turno previo",
+    nota: "Único hospital psiquiátrico público del país. Urgencias psiquiátricas las 24 horas."
+  },
+  {
+    nombre: "CENPTRA — Centro Nacional de Prevención y Tratamiento de Adicciones",
+    lat: -25.2975, lng: -57.6235,
+    direccion: "Venezuela 1140 esq. Concordia, Asunción",
+    telefono: "021 298 352",
+    nota: "Atención pública especializada en adicciones y consumo problemático."
+  },
+  {
+    nombre: "Hospital de Clínicas (FCM - UNA)",
+    lat: -25.3398, lng: -57.5102,
+    direccion: "Campus de la UNA, San Lorenzo",
+    telefono: "021 204 350",
+    nota: "Hospital universitario público general, con Departamento de Salud Mental."
+  },
+  {
+    nombre: "Hospital General de San Lorenzo (Calle'í)",
+    lat: -25.3465, lng: -57.5083,
+    direccion: "Av. Dr. Gabriel Pellón y Azara, San Lorenzo",
+    telefono: "021 561 129 · Psicología: 0974 501 895",
+    nota: "Guardia y consultas generales, además de Departamento de Salud Mental."
+  },
+  {
+    nombre: "Hospital Distrital de Lambaré",
+    lat: -25.3461, lng: -57.6071,
+    direccion: "Lambaré, Departamento Central",
+    telefono: "021 905 232",
+    nota: "Atención primaria general, con Unidad de Salud Mental."
+  },
+  {
+    nombre: "Hospital Nacional de Itauguá",
+    lat: -25.3547, lng: -57.3547,
+    direccion: "Itauguá, Departamento Central",
+    telefono: "021 200 730",
+    nota: "Hospital público general con guardia 24 horas."
+  },
+  {
+    nombre: "Hospital Central del IPS",
+    lat: -25.2892, lng: -57.5836,
+    direccion: "Asunción",
+    telefono: "021 204 300",
+    nota: "Hospital general para asegurados del IPS, guardia y especialidades."
+  },
+  {
+    nombre: "Hospital Regional de Luque",
+    lat: -25.2701, lng: -57.4859,
+    direccion: "Luque, Departamento Central",
+    telefono: "021 585 001",
+    nota: "Guardia 24 horas y consultas de medicina general."
+  }
+];
+
+let mapaInstancia = null;
+
+function initMapaAyuda() {
+  const el = document.getElementById('mapaAyuda');
+  if (!el || mapaInstancia) return;
+
+  mapaInstancia = L.map('mapaAyuda').setView([-25.32, -57.55], 10);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors',
+    maxZoom: 18
+  }).addTo(mapaInstancia);
+
+  HOSPITALES.forEach(h => {
+    const marker = L.circleMarker([h.lat, h.lng], {
+      radius: 9, color: '#0a0a0a', weight: 2,
+      fillColor: '#0a0a0a', fillOpacity: 0.85
+    }).addTo(mapaInstancia);
+
+    marker.bindPopup(
+      `<b>${h.nombre}</b><br>${h.direccion}<br>${h.telefono}<br><span style="color:#6b6b6b">${h.nota}</span>`
+    );
+  });
+
+  setTimeout(() => mapaInstancia.invalidateSize(), 200);
+}
+
+// ==========================================================================
+// ENCUESTA — motor genérico para hasta 10 preguntas, con gráfica en vivo.
+//
+// CÓMO AGREGAR MÁS PREGUNTAS:
+// Sumá objetos a este array (hasta 10). Cada uno necesita:
+//   id:      identificador único y corto, sin espacios (ej: "p2")
+//   texto:   el enunciado de la pregunta
+//   opciones: array de strings con las opciones de respuesta
+//
+// Ejemplo para agregar una segunda pregunta:
+// {
+//   id: 'p2',
+//   texto: '¿Con qué frecuencia sentís ansiedad relacionada al celular?',
+//   opciones: ['Nunca', 'A veces', 'Frecuentemente', 'Todo el tiempo']
+// }
+//
+// No hace falta tocar el resto del código: las preguntas se dibujan solas
+// y aparecen automáticamente en el selector de la gráfica.
+// ==========================================================================
+const PREGUNTAS_ENCUESTA = [
+  {
+    id: 'p1',
+    texto: '¿Cuántas horas por día usás el celular fuera del horario de clases?',
+    opciones: ['Menos de 1 hora', '1 a 3 horas', '3 a 5 horas', 'Más de 5 horas']
+  }
+  // Agregá aquí p2, p3, ... hasta un máximo de 10 preguntas.
+];
+
+const SURVEY_STORAGE_KEY = 'bts3ro026_encuesta_respuesta'
+
+function leerRespuestasGuardadas() {
+  try {
+    const raw = localStorage.getItem(SURVEY_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch (e) {
+    return {};
+  }
+}
+
+function guardarRespuestas(data) {
+  try {
+    localStorage.setItem(SURVEY_STORAGE_KEY, JSON.stringify(data));
+  } catch (e) {
+    // localStorage no disponible; la encuesta sigue funcionando en memoria durante la sesión
+  }
+}
+
+let respuestasEncuesta = leerRespuestasGuardadas();
+let chartEncuesta = null;
+
+function renderSurveyQuestions() {
+  const cont = document.getElementById('surveyQuestionsContainer');
+  if (!cont) return;
+  cont.innerHTML = '';
+
+  PREGUNTAS_ENCUESTA.forEach((pregunta, idx) => {
+    const card = document.createElement('div');
+    card.className = 'survey-question-card';
+    card.style.transitionDelay = (idx * 0.05) + 's';
+
+    const miRespuesta = respuestasEncuesta[pregunta.id] && respuestasEncuesta[pregunta.id].miRespuesta;
+
+    const opcionesHtml = pregunta.opciones.map(op => {
+      const seleccionada = op === miRespuesta ? ' selected' : '';
+      return `<button type="button" class="survey-option-btn${seleccionada}" data-pregunta="${pregunta.id}" data-opcion="${op.replace(/"/g, '&quot;')}">${op}</button>`;
+    }).join('');
+
+    card.innerHTML = `
+      <div class="survey-question-title">${idx + 1}. ${pregunta.texto}</div>
+      <div class="survey-options">${opcionesHtml}</div>
+      <div class="survey-answered-note">${miRespuesta ? 'Ya respondiste esta pregunta. Podés cambiar tu respuesta cuando quieras.' : 'Elegí una opción.'}</div>
+    `;
+    cont.appendChild(card);
+  });
+
+  cont.querySelectorAll('.survey-option-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const preguntaId = btn.dataset.pregunta;
+      const opcion = btn.dataset.opcion;
+      responderPregunta(preguntaId, opcion);
+    });
+  });
+
+  observeCards();
+}
+
+function responderPregunta(preguntaId, opcion) {
+  if (!respuestasEncuesta[preguntaId]) {
+    respuestasEncuesta[preguntaId] = { miRespuesta: null, conteos: {} };
+  }
+  const entrada = respuestasEncuesta[preguntaId];
+
+  // Si ya había respondido antes, se descuenta su voto anterior
+  if (entrada.miRespuesta && entrada.conteos[entrada.miRespuesta]) {
+    entrada.conteos[entrada.miRespuesta] -= 1;
+  }
+
+  entrada.miRespuesta = opcion;
+  entrada.conteos[opcion] = (entrada.conteos[opcion] || 0) + 1;
+
+  guardarRespuestas(respuestasEncuesta);
+  renderSurveyQuestions();
+  renderSurveyChart();
+}
+
+function poblarSelectorPreguntas() {
+  const select = document.getElementById('surveyChartSelect');
+  if (!select) return;
+  select.innerHTML = PREGUNTAS_ENCUESTA.map(p => `<option value="${p.id}">${p.texto}</option>`).join('');
+}
+
+function renderSurveyChart() {
+  const select = document.getElementById('surveyChartSelect');
+  const canvas = document.getElementById('surveyChartCanvas');
+  const emptyMsg = document.getElementById('surveyChartEmpty');
+  if (!select || !canvas || typeof Chart === 'undefined') return;
+
+  const preguntaId = select.value || (PREGUNTAS_ENCUESTA[0] && PREGUNTAS_ENCUESTA[0].id);
+  const pregunta = PREGUNTAS_ENCUESTA.find(p => p.id === preguntaId);
+  if (!pregunta) return;
+
+  const entrada = respuestasEncuesta[preguntaId] || { conteos: {} };
+  const labels = pregunta.opciones;
+  const valores = labels.map(op => entrada.conteos[op] || 0);
+  const totalRespuestas = valores.reduce((a, b) => a + b, 0);
+
+  emptyMsg.style.display = totalRespuestas === 0 ? 'flex' : 'none';
+
+  if (chartEncuesta) {
+    chartEncuesta.data.labels = labels;
+    chartEncuesta.data.datasets[0].data = valores;
+    chartEncuesta.update();
+    return;
+  }
+
+  chartEncuesta = new Chart(canvas.getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Respuestas',
+        data: valores,
+        backgroundColor: '#0a0a0a',
+        borderRadius: 6,
+        maxBarThickness: 56
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, ticks: { precision: 0 } }
+      }
+    }
+  });
+}
+
+function resetearRespuestas() {
+  respuestasEncuesta = {};
+  guardarRespuestas(respuestasEncuesta);
+  renderSurveyQuestions();
+  renderSurveyChart();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderSurveyQuestions();
+  poblarSelectorPreguntas();
+
+  const select = document.getElementById('surveyChartSelect');
+  if (select) select.addEventListener('change', renderSurveyChart);
+
+  const resetBtn = document.getElementById('surveyResetBtn');
+  if (resetBtn) resetBtn.addEventListener('click', resetearRespuestas);
+});
+</script>
+</body>
+</html>
